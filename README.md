@@ -29,3 +29,10 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 `ng new ng-keycloak` OR
 `git clone https://github.com/santoshshinde2012/ng-keycloak.git`
 
+### STEP 2 - Install Required Depedencies
+
+`npm i --save keycloak-js keycloak-angular`
+
+### STEP 3 - Add Keycloak Server Configuration
+
+
