@@ -35,4 +35,133 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 
 ### STEP 3 - Add Keycloak Server Configuration
 
+```
+import { KeycloakConfig } from 'keycloak-js';
 
+const keycloakConfig: KeycloakConfig = {
+  url: 'http://192.168.64.2:31484/auth',
+  realm: 'myrealm',
+  clientId: 'demo',
+};
+
+export default keycloakConfig;
+```
+
+### STEP 4 - Create Auth Module to Handle Keycloak Related Stuff
+
+`ng generate module auth`
+
+### STEP 5 - Keycloak Initialization
+
+```
+export function initializer(keycloak: KeycloakService): () => Promise<boolean|Error> {
+
+    const options: KeycloakOptions = {
+      config : environment.keycloak,
+      loadUserProfileAtStartUp: false,
+      initOptions: {
+          onLoad: 'login-required',
+          checkLoginIframe: true
+      },
+      bearerExcludedUrls: []
+    };
+
+    return (): Promise<boolean|Error> => {
+        return new Promise(async (resolve, reject) => {
+            try {
+                await keycloak.init(options);
+                resolve(true);
+            } catch (error) {
+                reject(error);
+            }
+        });
+    };
+}
+```
+### STEP 6 - Create Auth Service in Auth Module to handle authentication stuff
+
+`ng generate service auth/service/Auth`
+
+```
+import { Injectable } from '@angular/core';
+import { KeycloakService } from 'keycloak-angular';
+import { KeycloakTokenParsed } from 'keycloak-js';
+
+@Injectable()
+export class AuthService {
+
+  constructor(private keycloakService: KeycloakService) {}
+
+  public getLoggedUser(): KeycloakTokenParsed | undefined {
+    try {
+      const userDetails: KeycloakTokenParsed | undefined = this.keycloakService.getKeycloakInstance()
+        .idTokenParsed;
+      return userDetails;
+    } catch (e) {
+      console.error("Exception", e);
+      return undefined;
+    }
+  }
+
+  public logout() : void {
+    this.keycloakService.logout();
+  }
+
+  public redirectToProfile(): void {
+    this.keycloakService.getKeycloakInstance().accountManagement();
+  }
+
+  public getRoles(): string[] {
+    return this.keycloakService.getUserRoles();
+  }
+}
+```
+
+### STEP 7 - Import KeycloakAngularModule and Register Provider KeyloackService in AuthModule
+
+```
+import { NgModule, APP_INITIALIZER } from '@angular/core';
+import { KeycloakService, KeycloakAngularModule } from 'keycloak-angular';
+import { initializer } from './keycloak-initializer';
+import { AuthService } from './service/auth.service';
+
+@NgModule({
+  declarations: [],
+  imports: [KeycloakAngularModule],
+  providers: [
+    {
+        provide: APP_INITIALIZER,
+        useFactory: initializer,
+        multi: true,
+        deps: [KeycloakService]
+    },
+    AuthService
+  ]
+})
+export class AuthModule { }
+```
+
+### STEP 8 - Import AuthModule in main AppModule , So we can use it throught the project
+
+```
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { AuthModule } from './auth/auth.module';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    AuthModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
