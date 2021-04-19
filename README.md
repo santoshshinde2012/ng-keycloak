@@ -165,3 +165,62 @@ import { AuthModule } from './auth/auth.module';
 })
 export class AppModule { }
 ```
+
+### STEP 9 - Auth Guard configuration
+
+```
+import { Injectable } from '@angular/core';
+import { ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree, Router } from '@angular/router';
+import { KeycloakAuthGuard, KeycloakService } from 'keycloak-angular';
+
+@Injectable()
+export class AuthGuard extends KeycloakAuthGuard {
+
+  constructor(protected router: Router, protected keycloakAngular: KeycloakService) {
+    super(router, keycloakAngular);
+  }
+
+  private isGranted(requiredRoles: string[]): boolean {
+    let granted = false;
+
+    if (!requiredRoles || requiredRoles.length === 0) {
+      granted = true;
+    } else {
+      granted = this.roles.some(role => requiredRoles.includes(role));
+    }
+
+    return granted;
+  }
+
+  public isAccessAllowed(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean | UrlTree> {
+    return new Promise(async (resolve, reject) => {
+
+      // If user is not authenticated then needs to redirect to login page
+      if (!this.authenticated) {
+        this.keycloakAngular.login();
+        resolve(false);
+        return;
+      }
+
+      // If user is not having any role then he will be not granted to access the route/application
+      if (!this.isGranted(route.data.roles)) {
+        resolve(false);
+      }
+
+      resolve(true);
+
+    });
+  }
+
+}
+```
+
+### STEP 10 - Routing Module Configuration
+
+`ng generate module admin`
+`ng generate module user`
+`ng generate module admin/admin-routing --flat --module=admin`
+`ng generate module admin/user-routing --flat --module=user`
+`ng generate component admin/home`
+`ng generate component user/home`
+

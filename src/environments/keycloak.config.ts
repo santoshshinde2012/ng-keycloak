@@ -5,8 +5,8 @@
 import { KeycloakConfig } from 'keycloak-js';
 
 const keycloakConfig: KeycloakConfig = {
-  url: 'http://192.168.64.2:31484/auth',
-  realm: 'myrealm',
+  url: 'http://192.168.64.11:32039/auth',
+  realm: 'demo',
   clientId: 'demo',
 };
 

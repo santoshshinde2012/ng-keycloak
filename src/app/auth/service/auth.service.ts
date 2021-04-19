@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { KeycloakService } from 'keycloak-angular';
 import { KeycloakTokenParsed } from 'keycloak-js';
+import { from, Observable } from 'rxjs';
 
 @Injectable()
 export class AuthService {
@@ -16,6 +17,14 @@ export class AuthService {
       console.error("Exception", e);
       return undefined;
     }
+  }
+
+  public isLoggedIn() : Observable<boolean> {
+    return from(this.keycloakService.isLoggedIn());
+  }
+
+  public login() : void {
+    this.keycloakService.login();
   }
 
   public logout() : void {
