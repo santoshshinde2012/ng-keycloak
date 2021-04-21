@@ -54,28 +54,23 @@ export default keycloakConfig;
 ### STEP 5 - Keycloak Initialization
 
 ```
-export function initializer(keycloak: KeycloakService): () => Promise<boolean|Error> {
+import { KeycloakOptions, KeycloakService } from 'keycloak-angular';
+import { environment } from '../../environments/environment';
+
+export function initializer(keycloak: KeycloakService): () => Promise<boolean> {
 
     const options: KeycloakOptions = {
       config : environment.keycloak,
-      loadUserProfileAtStartUp: false,
+      loadUserProfileAtStartUp: true,
       initOptions: {
-          onLoad: 'login-required',
-          checkLoginIframe: true
+          onLoad: 'check-sso',
+          // onLoad: 'login-required',
+          checkLoginIframe: false
       },
       bearerExcludedUrls: []
     };
 
-    return (): Promise<boolean|Error> => {
-        return new Promise(async (resolve, reject) => {
-            try {
-                await keycloak.init(options);
-                resolve(true);
-            } catch (error) {
-                reject(error);
-            }
-        });
-    };
+    return () => keycloak.init(options);
 }
 ```
 ### STEP 6 - Create Auth Service in Auth Module to handle authentication stuff
@@ -206,10 +201,47 @@ export class AuthGuard extends KeycloakAuthGuard {
 
 ### STEP 10 - Routing Module Configuration
 
-`ng generate module admin`
-`ng generate module user`
-`ng generate module admin/admin-routing --flat --module=admin`
-`ng generate module admin/user-routing --flat --module=user`
-`ng generate component admin/home`
-`ng generate component user/home`
+- Create Landing module 
+
+  `ng generate module landing`
+
+  - Create landing routing module with some basic routes
+
+    `ng generate module landing/landing-routing --flat --module=landing`
+
+  - Create landing component 
+
+    `ng generate component landing/home`
+
+- Create Admin module 
+
+  `ng generate module landing`
+
+  - Create Admin routing module with some basic routes
+   
+    `ng generate module admin/admin-routing --flat --module=admin`
+   
+  - Create Admin component 
+
+    `ng generate component admin/home`
+
+- Create User module 
+
+  `ng generate module user`
+
+  - Create User routing module with some basic routes
+
+    `ng generate module admin/user-routing --flat --module=user`
+
+  - Create User component 
+
+    `ng generate component user/home`
+
+
+
+
+
+
+
+
 

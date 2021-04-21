@@ -1,10 +1,10 @@
 <div class="container">
   <div class="header">
     <nav>
-      <a *ngIf="isLoggedIn" routerLink="/admin" routerLinkActive="active">Admin</a>
-      <a *ngIf="isLoggedIn" routerLink="/user" routerLinkActive="active">User</a>
-      <button *ngIf="!isLoggedIn" (click)="login()">Login</button>
-      <button *ngIf="isLoggedIn" (click)="logout()">Logout</button>
+      <a *ngIf="loggedIn" routerLink="/admin" routerLinkActive="active">Admin</a>
+      <a *ngIf="loggedIn" routerLink="/user" routerLinkActive="active">User</a>
+      <button *ngIf="!loggedIn" (click)="login()">Login</button>
+      <button *ngIf="loggedIn" (click)="logout()">Logout</button>
     </nav>
   </div>
   <div class="content">

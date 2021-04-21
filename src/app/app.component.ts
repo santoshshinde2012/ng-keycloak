@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { KeycloakProfile } from 'keycloak-js';
 import { AuthService } from './auth/service/auth.service';
 
 @Component({
@@ -8,14 +9,16 @@ import { AuthService } from './auth/service/auth.service';
 })
 export class AppComponent {
   title = 'ng-keycloak';
-  public isLoggedIn: boolean = false;
+  public loggedIn: boolean = false;
+  public userProfile: KeycloakProfile = {};
 
-  constructor(private authService: AuthService) {
-    this.authService.isLoggedIn()
-      .subscribe((isLoggedIn: boolean) => {
-        console.log('isLoggedIn', isLoggedIn);
-        this.isLoggedIn = isLoggedIn;
-      })
+  constructor(private authService: AuthService) {}
+
+  async ngOnInit(): Promise<void> {
+    this.loggedIn = await this.authService.isLoggedIn();
+    if (this.loggedIn) {
+        this.userProfile = await this.authService.loadUserProfile();
+    }
   }
 
   public login(): void {

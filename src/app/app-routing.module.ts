@@ -4,9 +4,15 @@ import { AppComponent } from './app.component';
 import { AuthGuard } from './auth/auth.guard';
 
 const routes: Routes = [
-  // {
-  //   path: '', redirectTo: 'user', pathMatch: 'full'
-  // },
+  {
+    path: '',
+    redirectTo: 'landing',
+    pathMatch: 'full'
+  },
+  {
+    path: 'landing',
+    loadChildren: () => import('./landing/landing.module').then(m => m.LandingModule),
+  },
   {
     path: 'admin',
     loadChildren: () => import('./admin/admin.module').then(m => m.AdminModule),
